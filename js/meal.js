@@ -1,12 +1,30 @@
-const loadMeals = (search) => {
+const loadMeals = (search, dataLimit) => {
   fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${search}`)
     .then((res) => res.json())
-    .then((data) => displayMeals(data.meals));
+    .then((data) => displayMeals(data.meals, dataLimit));
 };
-const displayMeals = (meals) => {
-  console.log(meals);
+const displayMeals = (meals, dataLimit) => {
+  // console.log(meals);
   const mealContainer = document.getElementById("food-container");
   mealContainer.innerHTML = "";
+  const noFood = document.getElementById("no-fund-message");
+  if (meals === null) {
+    noFood.classList.remove("d-none");
+    toggler(false);
+    return;
+  } else {
+    noFood.classList.add("d-none");
+  }
+  const showall = document.getElementById("show-all");
+  // console.log(meals.length);
+  if (dataLimit && meals.length > 10) {
+    // if (meals.length >= 10) {
+    meals = meals.slice(0, 10);
+    showall.classList.remove("d-none");
+  } else {
+    showall.classList.add("d-none");
+  }
+
   meals.forEach((meal) => {
     const mealDiv = document.createElement("div");
     mealDiv.classList.add("col");
@@ -26,16 +44,27 @@ const displayMeals = (meals) => {
   `;
     mealContainer.appendChild(mealDiv);
   });
+  toggler(false);
 };
 // loadMeals("rice");
-
-const searchFood = () => {
+const processSearch = (dataLimit) => {
+  toggler(true);
   const inputField = document.getElementById("input-field");
   const item = inputField.value;
   inputField.value = "";
   //   console.log(item);
-  loadMeals(item);
+  loadMeals(item, dataLimit);
 };
+const searchFood = () => {
+  processSearch(5);
+};
+document
+  .getElementById("input-field")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      processSearch(5);
+    }
+  });
 
 const mealDetail = (id) => {
   //   console.log(id);
@@ -88,3 +117,16 @@ const mealDetailDisplay = (meal) => {
   //     `;
   foodDetail.appendChild(foodDiv);
 };
+const toggler = (isLoading) => {
+  const togglercontainer = document.getElementById("toggler-status");
+
+  if (isLoading) {
+    togglercontainer.classList.remove("d-none");
+  } else {
+    togglercontainer.classList.add("d-none");
+  }
+};
+
+document.getElementById("btn-showAll").addEventListener("click", function () {
+  processSearch();
+});
